@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTA Subway Alerts</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .alert {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .alert-header {
+            font-weight: bold;
+        }
+        .alert-content {
+            margin-top: 5px;
+        }
+        .alert-text {
+            margin-bottom: 5px;
+        }
+        .informed-entities {
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .entity-item {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>MTA Subway Alerts</h1>
+    <div id="alerts-container">
+        <p>Loading...</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fsubway-alerts.json')
+            .then(response => response.json())
+            .then(data => {
+                const alertsContainer = document.getElementById('alerts-container');
+                alertsContainer.innerHTML = ''; // Clear loading message
+
+                // Iterate through each alert entity in the 'entity' array
+                data.entity.forEach(entity => {
+                    const alert = entity.alert;
+
+                    // Create a div to hold the alert information
+                    const alertDiv = document.createElement('div');
+                    alertDiv.classList.add('alert');
+
+                    // Construct the alert header
+                    const headerDiv = document.createElement('div');
+                    headerDiv.classList.add('alert-header');
+                    headerDiv.textContent = `Entity ID: ${entity.id}`;
+                    alertDiv.appendChild(headerDiv);
+
+                    // Construct the informed entities header
+                    if (alert.informed_entity && alert.informed_entity.length > 0) {
+                        const entitiesDiv = document.createElement('div');
+                        entitiesDiv.classList.add('informed-entities');
+                        entitiesDiv.textContent = 'Informed Entities: ';
+
+                        alert.informed_entity.forEach(entity => {
+                            const entitySpan = document.createElement('span');
+                            entitySpan.classList.add('entity-item');
+                            if (entity.route_id) {
+                                entitySpan.textContent = `Route ${entity.route_id}`;
+                            } else if (entity.stop_id) {
+                                entitySpan.textContent = `Stop ${entity.stop_id}`;
+                            } else {
+                                entitySpan.textContent = `Agency ${entity.agency_id}`;
+                            }
+                            entitiesDiv.appendChild(entitySpan);
+                        });
+
+                        alertDiv.appendChild(entitiesDiv);
+                    }
+
+                    // Construct the alert content
+                    const contentDiv = document.createElement('div');
+                    contentDiv.classList.add('alert-content');
+
+                    // Add header text
+                    if (alert.header_text && alert.header_text.translation && alert.header_text.translation.length > 0) {
+                        alert.header_text.translation.slice(1).forEach(translation => {
+                            const headerText = document.createElement('div');
+                            headerText.classList.add('alert-text');
+                            headerText.innerHTML = translation.text;
+                            contentDiv.appendChild(headerText);
+                        });
+                    }
+
+                    // Add description text
+                    if (alert.description_text && alert.description_text.translation && alert.description_text.translation.length > 0) {
+                        alert.description_text.translation.slice(1).forEach(translation => {
+                            const descriptionText = document.createElement('div');
+                            descriptionText.classList.add('alert-text');
+                            descriptionText.innerHTML = translation.text;
+                            contentDiv.appendChild(descriptionText);
+                        });
+                    }
+
+                    alertDiv.appendChild(contentDiv);
+
+                    // Append the alertDiv to alertsContainer
+                    alertsContainer.appendChild(alertDiv);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                const alertsContainer = document.getElementById('alerts-container');
+                alertsContainer.textContent = 'Failed to fetch data. Check console for details.';
+            });
+        });
+    </script>
+</body>
+</html>
