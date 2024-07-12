@@ -54,17 +54,11 @@
                     const alertDiv = document.createElement('div');
                     alertDiv.classList.add('alert');
 
-                    // Construct the alert header
-                    const headerDiv = document.createElement('div');
-                    headerDiv.classList.add('alert-header');
-                    headerDiv.textContent = `Entity ID: ${entity.id}`;
-                    alertDiv.appendChild(headerDiv);
-
                     // Construct the informed entities header
                     if (alert.informed_entity && alert.informed_entity.length > 0) {
                         const entitiesDiv = document.createElement('div');
                         entitiesDiv.classList.add('informed-entities');
-                        entitiesDiv.textContent = 'Informed Entities: ';
+                        entitiesDiv.textContent = '';
 
                         alert.informed_entity.forEach(entity => {
                             const entitySpan = document.createElement('span');
@@ -81,6 +75,18 @@
 
                         alertDiv.appendChild(entitiesDiv);
                     }
+
+                    // Construct the active period start header
+                    const activePeriodStartDiv = document.createElement('div');
+                    activePeriodStartDiv.classList.add('alert-header');
+                    activePeriodStartDiv.textContent = `Start: ${new Date(alert.active_period[0].start * 1000)}`;
+                    alertDiv.appendChild(activePeriodStartDiv);
+
+                    // Construct the active period end header
+                    const activePeriodEndDiv = document.createElement('div');
+                    activePeriodEndDiv.classList.add('alert-header');
+                    activePeriodEndDiv.textContent = `End: ${alert.active_period[0].end ? new Date(alert.active_period[0].end * 1000) : ''}`;
+                    alertDiv.appendChild(activePeriodEndDiv);
 
                     // Construct the alert content
                     const contentDiv = document.createElement('div');
